@@ -69,52 +69,52 @@ Teste com `app.cache.max-itens=5` e `app.cache.ttl-segundos=60`. Dá para saber 
 ### Cadastro de conteúdo
 - `POST /conteudos` cadastrando um conteúdo, retorna `201 Created`. Foram cadastrados 7 conteúdos.
 
-![Cadastro de conteúdo](prints/post_conteudos.png)
+![Cadastro de conteúdo](cache/prints/post_conteudos.png)
 
 ### Cache MISS
 - Primeira busca do conteúdo 2. Ele não está no cache, então vai na fonte e demora **2,02 s**.
 
-![Cache MISS](prints/cache_miss.png)
+![Cache MISS](cache/prints/cache_miss.png)
 
 ### Cache HIT
 - Mesma busca logo em seguida. Agora o conteúdo já está no cache e volta em **5 ms**.
 
-![Cache HIT](prints/cache_hit.png)
+![Cache HIT](cache/prints/cache_hit.png)
 
 ### Cache cheio e remoção pelo LRU
 - Com o cache cheio (5 itens), a busca do conteúdo 6 é MISS e, para ele entrar, sai o item usado há mais tempo, que era o 2. No log aparece `Cache EVICTION (LRU) - id=2 removido`.
 
-![GET no 6 remove o 2](prints/get_no_6_faz_2_comecar_a_dar_miss.png)
+![GET no 6 remove o 2](cache/prints/get_no_6_faz_2_comecar_a_dar_miss.png)
 
 - Buscando o 2 de novo ele volta a dar MISS (**2,03 s**), o que prova que ele tinha saído do cache.
 
-![Cache cheio, o 2 dá MISS](prints/2_cache_cheio_da_miss.png)
+![Cache cheio, o 2 dá MISS](cache/prints/2_cache_cheio_da_miss.png)
 
 ### Invalidação após PUT
 - `PUT /conteudos/1` atualiza o título para "Artigo 1 (ATUALIZADO)" e remove o 1 do cache. No log aparece `Cache INVALIDADO - id=1`.
 
-![PUT no conteúdo 1](prints/atualiza_1.png)
+![PUT no conteúdo 1](cache/prints/atualiza_1.png)
 
 - A busca seguinte do 1 é MISS (**2,03 s**) e já volta com o dado novo, sem entregar a versão antiga.
 
-![Depois do PUT dá MISS com o dado novo](prints/apos_atualizar_da_miss_dado_novo.png)
+![Depois do PUT dá MISS com o dado novo](cache/prints/apos_atualizar_da_miss_dado_novo.png)
 
 ### Expiração pelo TTL
 - Depois de mais de 60 s, o conteúdo 6 ainda estava no cache mas tinha passado do TTL, então virou MISS (**2,04 s**) e foi buscado de novo. No log aparece `Cache EXPIRADO (TTL) - id=6`.
 
-![Expirou pelo TTL](prints/6_expira_por_ttl.png)
+![Expirou pelo TTL](cache/prints/6_expira_por_ttl.png)
 
 ### Estatísticas
 - Resultado no final dos testes: 5 itens no cache (o limite), 2 hits, 12 misses e 2 evictions. O hit ratio ficou baixo (~14%) porque a demonstração força vários MISS de propósito (cache cheio, TTL e invalidação).
 
-![Estatísticas do cache](prints/estatisticas_cache.png)
+![Estatísticas do cache](cache/prints/estatisticas_cache.png)
 
 ### Exclusão de conteúdo
 - `DELETE /conteudos/7` exclui o conteúdo, retorna `204 No Content` e também tira ele do cache.
 
-![DELETE no conteúdo 7](prints/delete_conteudo_7.png)
+![DELETE no conteúdo 7](cache/prints/delete_conteudo_7.png)
 
 ### Logs da aplicação
 - Os logs do `ConteudoCache` durante os testes. Dá para ver cada MISS (~2000 ms), cada HIT (0 a 1 ms), as remoções pelo LRU, as expirações pelo TTL, a invalidação depois do PUT e a limpeza do cache no final.
 
-![Logs da aplicação](prints/exemplos_logs_aplicacao.png)
+![Logs da aplicação](cache/prints/exemplos_logs_aplicacao.png)
